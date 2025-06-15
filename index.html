@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ប្រព័ន្ធតាមដាន ការចុះសួរសុខទុក្ខកុមារ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Koulen&family=Moul&family=Noto+Sans+Khmer:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Khmer', sans-serif;
+            background-color: #f0f4f8;
+        }
+        h1, h2, .koulen-font {
+            font-family: 'Koulen', cursive;
+        }
+        .moul-font {
+            font-family: 'Moul', cursive;
+        }
+        /* Custom Toast/Message Modal Styling */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loading-overlay {
+            background-color: rgba(0, 0, 0, 0.75);
+        }
+        .spinner {
+            border-top-color: #3B82F6;
+            border-bottom-color: #3B82F6;
+            border-left-color: #3B82F6;
+            border-right-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-8">
+
+        <!-- Header -->
+        <div class="text-center mb-8 border-b pb-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 moul-font">ប្រព័ន្ធតាមដាន ការចុះសួរសុខទុក្ខកុមារ</h1>
+            <p class="text-gray-500 mt-2">កម្មវិធីសម្រាប់កត់ត្រា និងគ្រប់គ្រងទិន្នន័យ</p>
+            <div id="usernameDisplay" class="mt-4 text-sm text-gray-600 font-semibold"></div>
+            <div id="userIdDisplay" class="mt-1 text-xs text-gray-500"></div>
+            <button id="copyUserIdButton" class="mt-2 w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-lg shadow-sm transition-transform transform hover:scale-105">
+                ចម្លងលេខសម្គាល់
+            </button>
+        </div>
+
+        <!-- Username Management Section -->
+        <div class="bg-indigo-50 rounded-xl p-6 mb-8 shadow-sm">
+            <h2 class="text-2xl font-bold text-indigo-800 mb-6 koulen-font">កំណត់ឈ្មោះអ្នកប្រើប្រាស់</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="usernameInput" class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះអ្នកប្រើប្រាស់</label>
+                    <input type="text" id="usernameInput" name="usernameInput" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="បញ្ចូលឈ្មោះរបស់អ្នក">
+                </div>
+                <div class="flex items-end">
+                    <button id="saveUsernameBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 koulen-font">
+                        រក្សាទុកឈ្មោះអ្នកប្រើប្រាស់
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Form - Children -->
+        <div class="bg-blue-50 rounded-xl p-6 mb-8 shadow-sm">
+            <h2 class="text-2xl font-bold text-blue-800 mb-6 koulen-font">តារាងបញ្ជីឈ្មោះកុមារ</h2>
+            <form id="addChildForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Name Input -->
+                <div class="col-span-1">
+                    <label for="childName" class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះកុមារ</label>
+                    <input type="text" id="childName" name="childName" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required aria-required="true">
+                </div>
+
+                <!-- Gender Selection -->
+                <div class="col-span-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ភេទ</label>
+                    <select id="childGender" name="childGender" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="ប្រុស">ប្រុស</option>
+                        <option value="ស្រី">ស្រី</option>
+                    </select>
+                </div>
+
+                <!-- Village Selection -->
+                <div class="col-span-1">
+                    <label for="targetVillage" class="block text-sm font-medium text-gray-700 mb-1">ភូមិគោលដៅ</label>
+                    <select id="targetVillage" name="targetVillage" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="ភូមិកងវ៉ា">ភូមិកងវ៉ាចាស់</option>
+                        <option value="ភូមិកងវ៉ាថ្មី">ភូមិកងវ៉ាថ្មី</option>
+                        <option value="ភូមិពង្រ">ភូមិពង្រ</option>
+                        <option value="ភូមិក្បាលស្ពាន">ភូមិក្បាលស្ពាន</option>
+                        <option value="ភូមិម្កាក់">ភូមិម្កាក់</option>
+                        <option value="ភូមិឈូក">ភូមិឈូក</option>
+                        <option value="ភូមិតាម៉ា">ភូមិតាម៉ា</option>
+                        <option value="ភូមិគោកលៀប">ភូមិគោកលៀប</option>
+                        <option value="ភូមិស្លក្រាម">ភូមិស្លក្រាម</option>
+                        <option value="អ៊ីងឆឹង">អ៊ីងឆឹង</option>
+                        <option value="ភូមិដូនឡី">ភូមិដូនឡី</option>
+                        <option value="ភូមិបែកចាន">ភូមិបែកចាន</option>
+                    </select>
+                </div>
+
+                <!-- Comment Input -->
+                <div class="md:col-span-2 lg:col-span-1">
+                    <label for="comment" class="block text-sm font-medium text-gray-700 mb-1">សម្រង់មតិ</label>
+                    <input type="text" id="comment" name="comment" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <!-- Participants Input -->
+                <div class="col-span-1">
+                    <label for="participants" class="block text-sm font-medium text-gray-700 mb-1">ចំនួនអ្នកចូលរួម</label>
+                    <input type="number" id="participants" name="participants" min="1" value="1" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required aria-required="true">
+                </div>
+
+                <!-- Submit Button -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 koulen-font text-lg">
+                        បន្ថែមទៅក្នុងបញ្ជី
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Children List Table -->
+        <div class="overflow-x-auto rounded-lg shadow-md mb-8">
+            <table class="min-w-full bg-white border border-gray-200">
+                <caption>បញ្ជីកុមារដែលបានសួរសុខទុក្ខ</caption>
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ល.រ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ឈ្មោះ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ភេទ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ភូមិគោលដៅ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">សម្រង់មតិ</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">អ្នកចូលរួម</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">សកម្មភាព</th>
+                    </tr>
+                </thead>
+                <tbody id="childList" class="divide-y divide-gray-200">
+                    <!-- Rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Summary and Copy User ID Button for Children Section -->
+        <div class="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="bg-green-100 text-green-800 text-lg font-bold px-6 py-3 rounded-lg shadow">
+                កុមារបានសួរសុខទុក្ខសរុប៖ <span id="totalChildren" class="koulen-font text-2xl" aria-live="polite">0</span> នាក់
+            </div>
+            <!-- The copy button is moved up but retained for debugging/ID reference -->
+        </div>
+
+        <hr class="my-10 border-gray-300">
+
+        <!-- Input Form - Monthly Notes Storage -->
+        <div class="bg-purple-50 rounded-xl p-6 mb-8 shadow-sm">
+            <h2 class="text-2xl font-bold text-purple-800 mb-6 koulen-font">ការរក្សាទុកកំណត់ចំណាំប្រចាំខែ</h2>
+            <form id="addMonthlyNoteForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Child Name Selection for Note -->
+                    <div class="col-span-1">
+                    <label for="noteChildName" class="block text-sm font-medium text-gray-700 mb-1">ឈ្មោះកុមារ</label>
+                    <select id="noteChildName" name="noteChildName" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required aria-required="true">
+                            <option value="">ជ្រើសរើសឈ្មោះកុមារ</option>
+                            <!-- Options will be dynamically loaded here by JavaScript -->
+                    </select>
+                </div>
+                <!-- Note Content Input (Textarea) -->
+                <div class="col-span-1">
+                    <label for="noteContent" class="block text-sm font-medium text-gray-700 mb-1">កំណត់ចំណាំ</label>
+                    <textarea id="noteContent" name="noteContent" rows="4" class="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required aria-required="true"></textarea>
+                </div>
+                <!-- Month/Year Input with Navigation Buttons -->
+                <div class="col-span-full">
+                    <label for="noteMonth" class="block text-sm font-medium text-gray-700 mb-1">ខែ/ឆ្នាំ</label>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <button type="button" id="prevNoteMonthBtn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg shadow-sm transition-colors text-gray-700 font-bold">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <input type="month" id="noteMonth" name="noteMonth" class="flex-grow px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500" required aria-required="true">
+                        <button type="button" id="nextNoteMonthBtn" class="p-2 bg-gray-200 hover:bg-gray-300 rounded-lg shadow-sm transition-colors text-gray-700 font-bold">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- Submit Button -->
+                <div class="col-span-full flex items-end">
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105 koulen-font text-lg">
+                        បន្ថែមកំណត់ចំណាំប្រចាំខែ
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Monthly Notes List Table -->
+        <div class="overflow-x-auto rounded-lg shadow-md">
+            <table class="min-w-full bg-white border border-gray-200">
+                <caption>កំណត់ចំណាំប្រចាំខែ</caption>
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ល.រ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ខែ/ឆ្នាំ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ឈ្មោះកុមារ</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">កំណត់ចំណាំ</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-bold text-gray-600 uppercase tracking-wider">សកម្មភាព</th>
+                    </tr>
+                </thead>
+                <tbody id="monthlyNotesList" class="divide-y divide-gray-200">
+                    <!-- Monthly notes rows will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary for Monthly Notes -->
+        <div class="mt-8 flex justify-end">
+            <div class="bg-purple-100 text-purple-800 text-lg font-bold px-6 py-3 rounded-lg shadow">
+                ចំនួនកំណត់ចំណាំសរុបបានរក្សាទុក៖ <span id="totalMonthlyNotes" class="koulen-font text-2xl" aria-live="polite">0</span> កំណត់ចំណាំ
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Custom Message Modal -->
+    <div id="messageModal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50" role="dialog" aria-modal="true" aria-labelledby="messageModalText" tabindex="-1">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 text-center modal-content">
+            <p id="messageModalText" class="text-gray-800 text-lg mb-6"></p>
+            <button id="messageModalCloseBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">យល់ព្រម</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden z-50" role="dialog" aria-modal="true" aria-labelledby="confirmModalText" tabindex="-1">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4 text-center modal-content">
+            <p id="confirmModalText" class="text-gray-800 text-lg mb-6"></p>
+            <div class="flex justify-center gap-4">
+                <button id="confirmModalYesBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">បាទ/ចាស</button>
+                <button id="confirmModalNoBtn" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">ទេ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 loading-overlay flex items-center justify-center hidden z-50" role="status" aria-live="assertive">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 spinner"></div>
+        <p class="text-white text-lg ml-4">កំពុងផ្ទុក...</p>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables
+        let app;
+        let db;
+        let auth;
+        let userId = 'anonymous'; // Default to anonymous
+        let isAuthReady = false; // Flag to indicate if authentication is ready
+        let focusedElementBeforeModal = null; // To store the element that was focused before modal opened
+
+        // Get DOM elements for Username Management
+        const usernameInput = document.getElementById('usernameInput');
+        const saveUsernameBtn = document.getElementById('saveUsernameBtn');
+        const usernameDisplay = document.getElementById('usernameDisplay'); // Element to display username
+        const userIdDisplay = document.getElementById('userIdDisplay'); // Existing User ID display
+        const copyUserIdButton = document.getElementById('copyUserIdButton'); // Existing copy button
+
+        // Get DOM elements for Children section
+        const addChildForm = document.getElementById('addChildForm');
+        const childListBody = document.getElementById('childList');
+        const totalChildrenSpan = document.getElementById('totalChildren');
+
+        // Get DOM elements for Monthly Notes Storage section
+        const addMonthlyNoteForm = document.getElementById('addMonthlyNoteForm');
+        const monthlyNotesListBody = document.getElementById('monthlyNotesList');
+        const totalMonthlyNotesSpan = document.getElementById('totalMonthlyNotes');
+        const noteChildNameInput = document.getElementById('noteChildName');
+        const noteContentInput = document.getElementById('noteContent');
+        const noteMonthInput = document.getElementById('noteMonth');
+        const prevNoteMonthBtn = document.getElementById('prevNoteMonthBtn');
+        const nextNoteMonthBtn = document.getElementById('nextNoteMonthBtn');
+
+        // Custom Modal elements
+        const messageModal = document.getElementById('messageModal');
+        const messageModalText = document.getElementById('messageModalText');
+        const messageModalCloseBtn = document.getElementById('messageModalCloseBtn');
+
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmModalText = document.getElementById('confirmModalText');
+        const confirmModalYesBtn = document.getElementById('confirmModalYesBtn');
+        const confirmModalNoBtn = document.getElementById('confirmModalNoBtn');
+
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // Data storage (will be updated by onSnapshot)
+        let children = [];
+        let monthlyNotes = [];
+        let currentUsername = null; // To store the fetched username
+
+        /**
+         * Shows a loading overlay.
+         */
+        function showLoading() {
+            loadingOverlay.classList.remove('hidden');
+            document.body.setAttribute('aria-hidden', 'true'); // Hide main content from screen readers
+        }
+
+        /**
+         * Hides the loading overlay.
+         */
+        function hideLoading() {
+            loadingOverlay.classList.add('hidden');
+            document.body.removeAttribute('aria-hidden'); // Make main content visible to screen readers
+        }
+
+        /**
+         * Displays a custom message modal.
+         * @param {string} message - The message to display.
+         */
+        function showMessage(message) {
+            focusedElementBeforeModal = document.activeElement; // Store currently focused element
+            messageModalText.textContent = message;
+            messageModal.classList.remove('hidden');
+            messageModal.focus(); // Focus the modal when it opens
+            document.body.setAttribute('aria-hidden', 'true'); // Hide main content from screen readers
+        }
+
+        // Event listener for message modal close button
+        messageModalCloseBtn.addEventListener('click', () => {
+            messageModal.classList.add('hidden');
+            document.body.removeAttribute('aria-hidden'); // Make main content visible to screen readers
+            if (focusedElementBeforeModal) {
+                focusedElementBeforeModal.focus(); // Restore focus to the element that triggered the modal
+                focusedElementBeforeModal = null; // Clear the stored element
+            }
+        });
+
+        /**
+         * Displays a custom confirmation modal and returns a Promise that resolves with true/false.
+         * @param {string} message - The confirmation message.
+         * @returns {Promise<boolean>} - True if confirmed, false otherwise.
+         */
+        function showConfirm(message) {
+            return new Promise((resolve) => {
+                focusedElementBeforeModal = document.activeElement; // Store currently focused element
+                confirmModalText.textContent = message;
+                confirmModal.classList.remove('hidden');
+                confirmModal.focus(); // Focus the modal when it opens
+                document.body.setAttribute('aria-hidden', 'true'); // Hide main content from screen readers
+
+                const handleYes = () => {
+                    confirmModal.classList.add('hidden');
+                    confirmModalYesBtn.removeEventListener('click', handleYes);
+                    confirmModalNoBtn.removeEventListener('click', handleNo);
+                    document.body.removeAttribute('aria-hidden'); // Make main content visible to screen readers
+                    if (focusedElementBeforeModal) {
+                        focusedElementBeforeModal.focus(); // Restore focus
+                        focusedElementBeforeModal = null;
+                    }
+                    resolve(true);
+                };
+
+                const handleNo = () => {
+                    confirmModal.classList.add('hidden');
+                    confirmModalYesBtn.removeEventListener('click', handleYes);
+                    confirmModalNoBtn.removeEventListener('click', handleNo);
+                    document.body.removeAttribute('aria-hidden'); // Make main content visible to screen readers
+                    if (focusedElementBeforeModal) {
+                        focusedElementBeforeModal.focus(); // Restore focus
+                        focusedElementBeforeModal = null;
+                    }
+                    resolve(false);
+                };
+
+                confirmModalYesBtn.addEventListener('click', handleYes);
+                confirmModalNoBtn.addEventListener('click', handleNo);
+            });
+        }
+
+        /**
+         * Renders the children table with current data from the 'children' array.
+         */
+        function renderChildrenTable() {
+            // Clear existing table rows
+            childListBody.innerHTML = '';
+            
+            // If no children, show a message
+            if (children.length === 0) {
+                childListBody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-gray-500">មិនទាន់មានទិន្នន័យនៅឡើយ...</td></tr>`;
+            } else {
+                // Populate table with data
+                children.forEach((child, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">${escapeHTML(child.name)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHTML(child.gender)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHTML(child.village)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHTML(child.comment)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center koulen-font">${child.participants}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <button data-id="${child.id}" class="delete-btn text-red-600 hover:text-red-900 transition-colors">លុប</button>
+                        </td>
+                    `;
+                    childListBody.appendChild(row);
+                });
+            }
+            updateTotalChildren();
+            populateChildNamesForNotes(); // Call this function to update child names dropdown
+        }
+        
+        /**
+         * Renders the monthly notes table with current data from the 'monthlyNotes' array.
+         */
+        function renderMonthlyNotesTable() {
+            monthlyNotesListBody.innerHTML = ''; // Clear existing rows
+
+            if (monthlyNotes.length === 0) {
+                monthlyNotesListBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-gray-500">មិនទាន់មានទិន្នន័យកំណត់ចំណាំប្រចាំខែនៅឡើយ...</td></tr>`;
+            } else {
+                // Sort monthlyNotes by monthYear in ascending order for consistent display
+                const sortedNotes = [...monthlyNotes].sort((a, b) => {
+                    return a.monthYear.localeCompare(b.monthYear);
+                });
+
+                sortedNotes.forEach((note, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold">${escapeHTML(note.monthYear)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${escapeHTML(note.childName || 'N/A')}</td> <!-- Display child name -->
+                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs overflow-hidden text-ellipsis whitespace-nowrap" title="${escapeHTML(note.noteContent)}">${escapeHTML(note.noteContent)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <button data-id="${note.id}" class="delete-monthly-note-btn text-red-600 hover:text-red-900 transition-colors">លុប</button>
+                        </td>
+                    `;
+                    monthlyNotesListBody.appendChild(row);
+                });
+            }
+            totalMonthlyNotesSpan.textContent = monthlyNotes.length; // Display total count of notes
+        }
+
+        /**
+         * Function to escape HTML special characters to prevent XSS.
+         * @param {string} str - The string to escape.
+         * @returns {string} - The escaped string.
+         */
+        function escapeHTML(str) {
+            if (str === null || str === undefined) {
+                return '';
+            }
+            return str.toString().replace(/[&<>"']/g, function(match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[match];
+            });
+        }
+
+        /**
+         * Updates the total count of children displayed.
+         */
+        function updateTotalChildren() {
+            totalChildrenSpan.textContent = children.length;
+        }
+
+        /**
+         * Populates the child name dropdown in the monthly notes form.
+         */
+        function populateChildNamesForNotes() {
+            noteChildNameInput.innerHTML = '<option value="">ជ្រើសរើសឈ្មោះកុមារ</option>'; // Clear existing options
+            // Sort unique child names using Khmer locale
+            const uniqueChildNames = [...new Set(children.map(child => child.name))].sort((a, b) => a.localeCompare(b, 'km')); 
+            uniqueChildNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                noteChildNameInput.appendChild(option);
+            });
+        }
+
+
+        /**
+         * Initializes the Firestore listener for children data.
+         */
+        function initChildrenFirestoreListener() {
+            if (!isAuthReady) {
+                console.log("Children Firestore listener not initialized: Auth not ready.");
+                return;
+            }
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const childrenCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/children`);
+
+            onSnapshot(childrenCollectionRef, (snapshot) => {
+                const fetchedChildren = [];
+                snapshot.forEach((doc) => {
+                    fetchedChildren.push({ id: doc.id, ...doc.data() });
+                });
+                children = fetchedChildren; // Update local array with fetched data
+                renderChildrenTable(); // Re-render the table with the new data and update child names dropdown
+            }, (error) => {
+                console.error("Error fetching children: ", error);
+                showMessage("មានបញ្ហា​ក្នុង​ការ​ផ្ទុក​ទិន្នន័យកុមារ។ សូមព្យាយាមម្តងទៀត។");
+            });
+        }
+
+        /**
+         * Initializes the Firestore listener for monthly notes data.
+         */
+        function initMonthlyNotesFirestoreListener() {
+            if (!isAuthReady) {
+                console.log("Monthly Notes Firestore listener not initialized: Auth not ready.");
+                return;
+            }
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const monthlyNotesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/monthly_notes`);
+
+            onSnapshot(monthlyNotesCollectionRef, (snapshot) => {
+                const fetchedMonthlyNotes = [];
+                snapshot.forEach((doc) => {
+                    fetchedMonthlyNotes.push({ id: doc.id, ...doc.data() });
+                });
+                monthlyNotes = fetchedMonthlyNotes; // Update local array with fetched data
+                renderMonthlyNotesTable(); // Re-render the table with the new data
+            }, (error) => {
+                console.error("Error fetching monthly notes: ", error);
+                showMessage("មានបញ្ហា​ក្នុង​ការ​ផ្ទុក​ទិន្នន័យកំណត់ចំណាំប្រចាំខែ។ សូមព្យាយាមម្តងទៀត។");
+            });
+        }
+
+        /**
+         * Initializes the Firestore listener for user profile data (username).
+         */
+        function initUserProfileListener() {
+            if (!isAuthReady) {
+                console.log("User Profile Firestore listener not initialized: Auth not ready.");
+                return;
+            }
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const userProfileDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'user_data');
+
+            onSnapshot(userProfileDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    currentUsername = docSnap.data().username;
+                    usernameDisplay.textContent = `សូមស្វាគមន៍, ${escapeHTML(currentUsername)}!`;
+                    usernameInput.value = currentUsername; // Pre-fill input with current username
+                } else {
+                    currentUsername = null;
+                    usernameDisplay.textContent = `លេខសម្គាល់អ្នកប្រើប្រាស់: ${userId}`;
+                    usernameInput.value = ''; // Clear input if no username is set
+                }
+            }, (error) => {
+                console.error("Error fetching user profile: ", error);
+                // No need to show message for profile fetch error, as it's not critical for main functionality
+            });
+        }
+
+        /**
+         * Adjusts the month of the noteMonthInput by a given offset.
+         * @param {number} offset - The number of months to add (positive) or subtract (negative).
+         */
+        function adjustNoteMonth(offset) {
+            const currentMonthYear = noteMonthInput.value;
+            if (!currentMonthYear) return;
+
+            const [yearStr, monthStr] = currentMonthYear.split('-');
+            let year = parseInt(yearStr);
+            let month = parseInt(monthStr);
+
+            month += offset;
+
+            // Handle year changes when month goes out of range (1-12)
+            while (month > 12) {
+                month -= 12;
+                year += 1;
+            }
+            while (month < 1) {
+                month += 12;
+                year -= 1;
+            }
+
+            const newMonthStr = month.toString().padStart(2, '0');
+            noteMonthInput.value = `${year}-${newMonthStr}`;
+        }
+
+        // Function to get all focusable elements within a given container
+        function getFocusableElements(container) {
+            return Array.from(
+                container.querySelectorAll(
+                    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                )
+            ).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement);
+        }
+
+        // --- Event Listeners ---
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            showLoading(); // Show loading indicator on page load
+            try {
+                // Initialize Firebase
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Authenticate user
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for auth state changes and set userId
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        userIdDisplay.textContent = `លេខសម្គាល់អ្នកប្រើប្រាស់: ${userId}`;
+                        console.log("Authentication successful. User ID:", userId);
+                        
+                        // Initialize Firestore listeners after authentication is ready
+                        initUserProfileListener();
+                        initChildrenFirestoreListener();
+                        initMonthlyNotesFirestoreListener();
+                    } else {
+                        userId = crypto.randomUUID(); // Fallback to a random ID if not authenticated
+                        isAuthReady = true; // Still consider auth ready for anonymous usage
+                        userIdDisplay.textContent = `លេខសម្គាល់អ្នកប្រើប្រាស់: ${userId} (អនាមិក)`;
+                        console.log("Signed in anonymously. Generated User ID:", userId);
+
+                        // Initialize Firestore listeners for anonymous user
+                        initUserProfileListener();
+                        initChildrenFirestoreListener();
+                        initMonthlyNotesFirestoreListener();
+                    }
+                    hideLoading(); // Hide loading after auth state is determined and listeners are set
+                });
+
+                // Set current month for noteMonthInput
+                const today = new Date();
+                const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+                const currentYear = today.getFullYear();
+                noteMonthInput.value = `${currentYear}-${currentMonth}`;
+
+            } catch (error) {
+                console.error("Initialization error:", error);
+                showMessage("មានបញ្ហា​ក្នុង​ការចាប់ផ្ដើមកម្មវិធី។ សូមព្យាយាមម្តងទៀត។");
+                hideLoading(); // Hide loading even on error
+            }
+        });
+
+        // Event listener for saving username
+        saveUsernameBtn.addEventListener('click', async () => {
+            if (!isAuthReady) {
+                showMessage("សូមរង់ចាំរហូតដល់កម្មវិធីផ្ទុកពេញ។");
+                return;
+            }
+            const newUsername = usernameInput.value.trim();
+            if (newUsername) {
+                showLoading();
+                try {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                    const userProfileDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile`, 'user_data');
+                    await setDoc(userProfileDocRef, { username: newUsername });
+                    showMessage("ឈ្មោះអ្នកប្រើប្រាស់ត្រូវបានរក្សាទុកដោយជោគជ័យ!");
+                } catch (e) {
+                    console.error("Error setting username: ", e);
+                    showMessage("មានបញ្ហា​ក្នុង​ការ​រក្សាទុកឈ្មោះអ្នកប្រើប្រាស់។");
+                } finally {
+                    hideLoading();
+                }
+            } else {
+                showMessage("សូមបញ្ចូលឈ្មោះអ្នកប្រើប្រាស់។");
+            }
+        });
+
+        // Event listener for copying User ID
+        copyUserIdButton.addEventListener('click', () => {
+            if (userIdDisplay.textContent) {
+                const idToCopy = userIdDisplay.textContent.replace('លេខសម្គាល់អ្នកប្រើប្រាស់: ', '').replace(' (អនាមិក)', '');
+                const textarea = document.createElement('textarea');
+                textarea.value = idToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    showMessage("លេខសម្គាល់អ្នកប្រើប្រាស់ត្រូវបានចម្លងទៅក្ដារតម្បៀតខ្ទាស់។");
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                    showMessage("មិនអាចចម្លងលេខសម្គាល់អ្នកប្រើប្រាស់បានទេ។");
+                }
+                document.body.removeChild(textarea);
+            }
+        });
+
+        // Event listener for adding a new child record
+        addChildForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) {
+                showMessage("សូមរង់ចាំរហូតដល់កម្មវិធីផ្ទុកពេញ។");
+                return;
+            }
+
+            const childName = document.getElementById('childName').value.trim();
+            const childGender = document.getElementById('childGender').value;
+            const targetVillage = document.getElementById('targetVillage').value;
+            const comment = document.getElementById('comment').value.trim();
+            const participants = parseInt(document.getElementById('participants').value, 10);
+
+            if (!childName || isNaN(participants) || participants <= 0) {
+                showMessage("សូមបញ្ចូលឈ្មោះកុមារ និងចំនួនអ្នកចូលរួមឱ្យបានត្រឹមត្រូវ។");
+                return;
+            }
+
+            showLoading();
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/children`), {
+                    name: childName,
+                    gender: childGender,
+                    village: targetVillage,
+                    comment: comment,
+                    participants: participants,
+                    timestamp: new Date()
+                });
+                addChildForm.reset(); // Clear form fields
+                document.getElementById('participants').value = 1; // Reset participants to 1
+                showMessage("កំណត់ត្រាកុមារត្រូវបានបន្ថែមដោយជោគជ័យ!");
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showMessage("មានបញ្ហា​ក្នុង​ការ​បន្ថែមកំណត់ត្រាកុមារ។");
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Event listener for deleting a child record (delegated)
+        childListBody.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                if (!isAuthReady) {
+                    showMessage("សូមរង់ចាំរហូតដល់កម្មវិធីផ្ទុកពេញ។");
+                    return;
+                }
+                const childId = e.target.dataset.id;
+                const confirmed = await showConfirm("តើអ្នកពិតជាចង់លុបកំណត់ត្រាកុមារនេះមែនទេ?");
+                
+                if (confirmed) {
+                    showLoading();
+                    try {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/children`, childId));
+                        showMessage("កំណត់ត្រាកុមារត្រូវបានលុបដោយជោគជ័យ!");
+                    } catch (e) {
+                        console.error("Error removing document: ", e);
+                        showMessage("មានបញ្ហា​ក្នុង​ការ​លុបកំណត់ត្រាកុមារ។");
+                    } finally {
+                        hideLoading();
+                    }
+                }
+            }
+        });
+
+        // Event listener for adding a new monthly note
+        addMonthlyNoteForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isAuthReady) {
+                showMessage("សូមរង់ចាំរហូតដល់កម្មវិធីផ្ទុកពេញ។");
+                return;
+            }
+
+            const childName = noteChildNameInput.value;
+            const noteContent = noteContentInput.value.trim();
+            const noteMonthYear = noteMonthInput.value; // FormatYYYY-MM
+
+            if (!childName || !noteContent || !noteMonthYear) {
+                showMessage("សូមបំពេញឈ្មោះកុមារ កំណត់ចំណាំ និងខែ/ឆ្នាំ។");
+                return;
+            }
+
+            showLoading();
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/monthly_notes`), {
+                    childName: childName,
+                    noteContent: noteContent,
+                    monthYear: noteMonthYear,
+                    timestamp: new Date()
+                });
+                addMonthlyNoteForm.reset(); // Clear form fields
+                // Set current month after reset
+                const today = new Date();
+                const currentMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+                const currentYear = today.getFullYear();
+                noteMonthInput.value = `${currentYear}-${currentMonth}`;
+                showMessage("កំណត់ចំណាំប្រចាំខែត្រូវបានបន្ថែមដោយជោគជ័យ!");
+            } catch (e) {
+                console.error("Error adding monthly note: ", e);
+                showMessage("មានបញ្ហា​ក្នុង​ការ​បន្ថែមកំណត់ចំណាំប្រចាំខែ។");
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // Event listener for deleting a monthly note (delegated)
+        monthlyNotesListBody.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('delete-monthly-note-btn')) {
+                if (!isAuthReady) {
+                    showMessage("សូមរង់ចាំរហូតដល់កម្មវិធីផ្ទុកពេញ។");
+                    return;
+                }
+                const noteId = e.target.dataset.id;
+                const confirmed = await showConfirm("តើអ្នកពិតជាចង់លុបកំណត់ចំណាំប្រចាំខែនេះមែនទេ?");
+                
+                if (confirmed) {
+                    showLoading();
+                    try {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                        await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/monthly_notes`, noteId));
+                        showMessage("កំណត់ចំណាំប្រចាំខែត្រូវបានលុបដោយជោគជ័យ!");
+                    } catch (e) {
+                        console.error("Error removing monthly note: ", e);
+                        showMessage("មានបញ្ហា​ក្នុង​ការ​លុបកំណត់ចំណាំប្រចាំខែ។");
+                    } finally {
+                        hideLoading();
+                    }
+                }
+            }
+        });
+
+        // Event listeners for month navigation buttons
+        prevNoteMonthBtn.addEventListener('click', () => adjustNoteMonth(-1));
+        nextNoteMonthBtn.addEventListener('click', () => adjustNoteMonth(1));
+
+        // Keyboard navigation for modals (focus trapping and Escape key close)
+        document.addEventListener('keydown', (e) => {
+            if (messageModal.classList.contains('hidden') && confirmModal.classList.contains('hidden')) {
+                return; // No modal open, do nothing
+            }
+
+            const currentModal = messageModal.classList.contains('hidden') ? confirmModal : messageModal;
+            const focusableElements = getFocusableElements(currentModal);
+            const firstFocusableEl = focusableElements[0];
+            const lastFocusableEl = focusableElements[focusableElements.length - 1];
+
+            if (e.key === 'Tab') {
+                if (e.shiftKey) { // Shift + Tab
+                    if (document.activeElement === firstFocusableEl) {
+                        lastFocusableEl.focus();
+                        e.preventDefault();
+                    }
+                } else { // Tab
+                    if (document.activeElement === lastFocusableEl) {
+                        firstFocusableEl.focus();
+                        e.preventDefault();
+                    }
+                }
+            } else if (e.key === 'Escape') {
+                if (!messageModal.classList.contains('hidden')) {
+                    messageModalCloseBtn.click(); // Programmatically click the close button
+                } else if (!confirmModal.classList.contains('hidden')) {
+                    confirmModalNoBtn.click(); // Programmatically click the "No" button to close
+                }
+                e.preventDefault(); // Prevent default Escape behavior
+            }
+        });
+    </script>
+</body>
+</html>
